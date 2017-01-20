@@ -1,0 +1,16 @@
+name: presubmit
+author: Matan Lurey <matanl@google.com>
+homepage: https://pub.dartlang.org/packages/presubmit
+description: Validates your package so you don't have to!
+version: 0.0.1
+
+dependencies:
+  args: '^0.13.5'
+  meta: '^1.0.4'
+  path: '^1.4.0'
+
+dev_dependencies:
+  test: '^0.12.18'
+
+executable:
+  presubmit: presubmit

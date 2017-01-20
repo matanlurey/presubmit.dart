@@ -1,0 +1,5 @@
+# We *do* check in our pubspec.lock so this can be used as an application.
+
+# Do not check in pub package resolution.
+.packages
+.pub
