@@ -55,7 +55,7 @@ class DartAnalyzerPlugin implements Plugin {
         '--fatal-hints',
         '--fatal-lints',
         '--fatal-warnings',
-        '--machine',
+        '--format=machine',
         '--options=${maybeAnalysisOptions.path}',
       ];
     } else {
@@ -63,7 +63,7 @@ class DartAnalyzerPlugin implements Plugin {
         '--fatal-hints',
         '--fatal-lints',
         '--fatal-warnings',
-        '--machine',
+        '--format=machine',
         strong ? '--strong' : '--no-strong',
       ];
     }
@@ -73,18 +73,27 @@ class DartAnalyzerPlugin implements Plugin {
       ),
     );
     final process = await Process.start('dartanalyzer', args);
-    await for (final message
-        in process.stderr.map(UTF8.decode).transform(const LineSplitter())) {
+    final ls = const LineSplitter();
+    await for (final message in process.stderr.map(UTF8.decode).transform(ls)) {
       final parts = message.split('|');
-      final file = p.relative(parts[3], from: path);
-      final line = parts[4];
-      final col = parts[5];
-      yield new Result(
-        file,
-        false,
-        message:
-            '@$line:$col ${parts[0]}(${parts[1]}, ${parts[2]}): ${parts.last}',
-      );
+      if (parts.length >= 6) {
+        final file = p.relative(parts[3], from: path);
+        final line = parts[4];
+        final col = parts[5];
+        final msg =
+            '@$line:$col ${parts[0]}(${parts[1]}, ${parts[2]}): ${parts.last}';
+        yield new Result(
+          file,
+          false,
+          message: msg,
+        );
+      } else {
+        yield new Result(
+          '<Unknown>',
+          false,
+          message: 'Unknown error: $message',
+        );
+      }
     }
     yield ((await process.exitCode == 0) ? Result.success : Result.failure);
   }
